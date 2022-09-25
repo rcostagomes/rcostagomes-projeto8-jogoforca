@@ -1,5 +1,5 @@
 export const palavras = [
-  "ABACATE",
+  "abacate",
   "abacaxi",
   "abelha",
   "abanador",

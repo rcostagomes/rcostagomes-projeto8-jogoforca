@@ -9,13 +9,15 @@ export const Main = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+
 export const Center = styled.div`
   display: flex;
   img {
     width: 350px;
     height: auto;
   }
-
+  
   button {
     margin-left: 70px;
     color: white;
