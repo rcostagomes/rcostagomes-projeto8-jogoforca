@@ -53,6 +53,14 @@ export const Palavra = styled.div`
   margin-left: 500px;
   font-style: bold;
   font-size: 36px;
+
+  div { 
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 export const Options = styled.div`
   margin-top: 20px;

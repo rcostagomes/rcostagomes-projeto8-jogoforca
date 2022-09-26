@@ -6,134 +6,173 @@ import forca3 from "../../Assets/img/forca3.png";
 import forca4 from "../../Assets/img/forca4.png";
 import forca5 from "../../Assets/img/forca5.png";
 import forca6 from "../../Assets/img/forca6.png";
-
-
-import removeAccents from "remove-accents"
 import { Main, Center, Options, Footer, Palavra } from "./style";
 import { palavras } from "../palavras";
 
 export default function App() {
-  
-  const [contador, setContador] = React.useState(0)
-  const Vida = [forca0,forca1,forca2,forca3,forca4,forca5,forca6];
-  const [imagem, setImagem ] = React.useState(Vida[contador]);
-  const [linhas, setLinhas] = React.useState("");
-  const [SecretPalavra, setPalavra] = React.useState("");
-  const NewPalavra = removeAccents(SecretPalavra).toUpperCase();
-  
-  console.log(NewPalavra);
-  const Palavrarender = NewPalavra.split("");
+  const [contador, setContador] = React.useState(0);
+  const Vida = [forca0, forca1, forca2, forca3, forca4, forca5, forca6];
+  const [palavra, setPalavra] = React.useState("");
+  const [PalavraOC, setPalavraOC] = React.useState();
+  const [SecretPalavra, setSecretPalavra] = React.useState("");
+  const [listaClicada, setListaClicada] = React.useState([]);
+  const [erros, setErros] = React.useState([]);
+  const [imagem, setImagem] = React.useState(Vida[contador]);
+  const [palavraNoFim, setPalavraNoFim] = React.useState("palavraForca");
+  const [TelaPerdeu, setTelaperdeu] = React.useState()
+  const [TelaGanhou, setTelaGanhou] = React.useState()
+  const [CorLetras, setCorLetras] = React.useState()
+  const arrayImagens = [forca0, forca1, forca2, forca3, forca4, forca5, forca6];
+  console.log(SecretPalavra);
 
-   // Botoes das letras--------------------------------// 
-function Letras(props) {
-  return (
-    <button
-      onClick={() => verificar(`${props.letra}`,`${props.cor}`)}
-      style={{ backgroundColor: `${props.color}` }}
-    >
-
-      {props.letra}
-    </button>
-  );
-}
-  
+  // Botoes das letras--------------------------------//
+  function Letras(props) {
+    return (
+      <button
+        onClick={() => verificar(`${props.letra}`)}
+        style={{ backgroundColor: `${props.color}` }}
+      >
+        {props.letra}
+      </button>
+    );
+  }
 
   // ------------------------------------------------ //
+  function chutar(){
+    let chutado = document.querySelector(".Chute").value;
+    if(chutado === SecretPalavra){
 
-  
+      setPalavraNoFim("palavraForcaVitoria");
+      setCorLetras("green")
+      setTelaGanhou( <h1> "Você Ganhou" </h1>) 
+      setPalavraOC(SecretPalavra)
+    }
+    else{
+     setPalavraNoFim("palavraForcaDerrota");
+        setImagem(arrayImagens[6])
+        setCorLetras("Red")
+        setTelaperdeu( <h1 > "Você perdeu" </h1>)   
+        setPalavraOC(SecretPalavra)
+    }
+  }
+
   /* Sorteia a posição da palavra, pega o index dela, renderezia ela e oculta,
    cria os underline pelo numero de letras*/
 
-   function criarPalavra() {
-    const indexPalavra = parseInt(Math.random() * palavras.length);
-    setPalavra(palavras[`${indexPalavra}`]);
-    //setPalavra(palavras[0])
-    const underline = "_ "
-    setLinhas(underline.repeat(palavras[indexPalavra].length));
-  }
-  let AllUnderline = `${[linhas]}`
-  console.log(AllUnderline);
-// ----------------------------------------------------------------------------//
-
-
+  function criarPalavra() {
+    setTelaperdeu()
+    setTelaGanhou()
   
-  function verificar(letra) {
-   
-    if (Palavrarender.includes(letra) === true) {
-    
-      
-      console.log("Entrou em true");
-      
-    } else {
-      console.log("entrou no falso")
-    
-    setContador(contador + 1)
-    setImagem(Vida[contador+1])
 
-    console.log(NewPalavra.includes(letra));
-    console.log(Palavrarender)
+    const index = palavras[Math.floor(Math.random() * palavras.length)];
+    console.log(index)
+    const palavraSemAcento = index.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    setSecretPalavra(palavraSemAcento);
+    setPalavra(index);
+    setPalavraOC(index[0].replace(/[^0]/g, "_ "));
+    setImagem(arrayImagens[0]);
+    setListaClicada([]);
+    setPalavraNoFim("palavraForca");
+    setErros([]);
   }
-}
+  // ----------------------------------------------------------------------------//
+
+  function verificar(letra) {
+    const novaLista = [...listaClicada, letra];
+    setListaClicada(novaLista);
+
+    if (palavra.includes(letra)) {
+      const novasLetras = [...listaClicada, letra];
+      const arrayLetras = SecretPalavra.split("");
+      const palavraCerta = arrayLetras.map((TL) =>
+        novasLetras.includes(TL) ? TL : "_"
+      );
+      const palavraCertaFinal = palavraCerta.join(" ");
+      const SemEspaço = palavraCertaFinal.trim()
+      setPalavraOC(palavraCertaFinal);
+      console.log(PalavraOC);
+      console.log(SemEspaço)
+      console.log(SecretPalavra)
+      if (SemEspaço == PalavraOC) {
+        console.log("entrou")
+        setPalavraOC(palavra);
+        setPalavraNoFim("palavraForcaVitoria");
+        setCorLetras("green")
+        setTelaGanhou( <h1> "Você Ganhou" </h1>) 
+      }
+    } else {
+      const novosErros = [...erros, letra];
+      setErros(novosErros);
+      setContador(contador + 1);
+      setImagem(Vida[contador + 1]);
+      if (contador === 6) {
+        setPalavraOC(palavra);
+        setPalavraNoFim("palavraForcaDerrota");
+        setImagem(arrayImagens[0])
+        setCorLetras("Red")
+        setTelaperdeu( <h1 > "Você perdeu" </h1>)                          
+      }
+    }
+  }
+
   
 // ----------------------------------------------------------------------------
+const TodasLetras = [
+  { letra: "a", color: "#e1ecf4" },
+  { letra: "b", color: "#e1ecf4" },
+  { letra: "c", color: "#e1ecf4" },
+  { letra: "d", color: "#e1ecf4" },
+  { letra: "e", color: "#e1ecf4" },
+  { letra: "f", color: "#e1ecf4" },
+  { letra: "g", color: "#e1ecf4" },
+  { letra: "h", color: "#e1ecf4" },
+  { letra: "i", color: "#e1ecf4" },
+  { letra: "j", color: "#e1ecf4" },
+  { letra: "k", color: "#e1ecf4" },
+  { letra: "l", color: "#e1ecf4" },
+  { letra: "m", color: "#e1ecf4" },
+  { letra: "n", color: "#e1ecf4" },
+  { letra: "o", color: "#e1ecf4" },
+  { letra: "p", color: "#e1ecf4" },
+  { letra: "q", color: "#e1ecf4" },
+  { letra: "r", color: "#e1ecf4" },
+  { letra: "s", color: "#e1ecf4" },
+  { letra: "t", color: "#e1ecf4" },
+  { letra: "u", color: "#e1ecf4" },
+  { letra: "v", color: "#e1ecf4" },
+  { letra: "w", color: "#e1ecf4" },
+  { letra: "x", color: "#e1ecf4" },
+  { letra: "y", color: "#e1ecf4" },
+  { letra: "z", color: "#e1ecf4" },
+];
 
+return (
+  <>
+    <Main>
+      <Center>
+        <div>
+          <img src={imagem} alt="Forca" />
+          <Palavra>
+            <div> 
+            <span style={{color: `${CorLetras}`}}> {TelaPerdeu} {TelaGanhou} </span>
+            <span > {PalavraOC}</span> 
+            </div>
+          </Palavra>
+        </div>
 
-  
-  const TodasLetras = [
-    { letra: "A", color: "grey" },
-    { letra: "B", color: "grey" },
-    { letra: "C", color: "grey" },
-    { letra: "D", color: "grey" },
-    { letra: "E", color: "grey"},
-    { letra: "F", color: "grey" },
-    { letra: "G", color: "grey" },
-    { letra: "H", color: "grey" },
-    { letra: "I", color: "grey" },
-    { letra: "J", color: "grey" },
-    { letra: "K", color: "grey" },
-    { letra: "L", color: "grey" },
-    { letra: "M", color: "grey" },
-    { letra: "N", color: "grey" },
-    { letra: "O", color:"grey" },
-    { letra: "P", color: "grey" },
-    { letra: "Q", color: "grey" },
-    { letra: "R", color: "grey" },
-    { letra: "S", color: "grey"},
-    { letra: "T", color: "grey" },
-    { letra: "U", color: "grey" },
-    { letra: "V", color: "grey" },
-    { letra: "W", color: "grey" },
-    { letra: "X", color: "grey" },
-    { letra: "Y", color: "grey" },
-    { letra: "Z", color: "grey" },
-  ];
+        <button onClick={criarPalavra}> Escolher Palavra </button>
+      </Center>
+      <Options>
+        {TodasLetras.map((TL, index) => (
+          <Letras key={index} letra={TL.letra} />
+        ))}
+      </Options>
 
-  return (
-    <>
-      <Main>
-        <Center>
-          <div>
-            <img src={imagem} alt="Forca" />
-            <Palavra>
-              
-              <div>  </div>
-              <span> {AllUnderline}</span>
-            </Palavra>
-          </div>
-
-          <button onClick={criarPalavra}> Escolher Palavra </button>
-        </Center>
-        <Options>
-          {TodasLetras.map((TL, index) => (
-            <Letras key={index} letra={TL.letra}  />
-          ))}
-        </Options>
-
-        <Footer>
-          <strong> Já sei a palavra</strong> <input></input>{" "}
-          <button>Chutar</button>
-        </Footer>
-      </Main>
-    </>
-  );
+      <Footer>
+        <strong> Já sei a palavra</strong> <input data-identifier="type-guess" className="Chute" />
+        <button onClick={chutar}>Chutar</button>
+      </Footer>
+    </Main>
+  </>
+);
 }
